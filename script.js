@@ -9,30 +9,42 @@ const formOutput = document.getElementById("form-output");
 
 
 contactForm.addEventListener("submit", function(event) {
-
     event.preventDefault();
 
     const name = contactName.value.trim();
     const email = contactEmail.value.trim();
     const message = contactMessage.value.trim();
 
-    
-    // Validate the form
     if (name === "" || email === "" || message === "") {
         formOutput.textContent = "Please fill in all fields.";
         formOutput.classList.remove("success");
         formOutput.classList.add("error");
-    } else {
-        // Successful submission
+        return;  // stop here, don't try to send anything
+    }
+
+    // Send the data to Formspree
+    fetch("https://formspree.io/f/moejjlyl", {
+        method: "POST",
+        headers: { "Accept": "application/json" },
+        body: new FormData(contactForm)
+    })
+    .then((response) => {
+    if (response.ok) {
         formOutput.textContent = `Thanks, ${name}! Your message has been sent.`;
         formOutput.classList.remove("error");
         formOutput.classList.add("success");
-
-    // Only Clear the form on successful submission
-    contactName.value = "";
-    contactEmail.value = "";
-    contactMessage.value = "";
-}
+        contactForm.reset();
+    } else {
+        formOutput.textContent = "Something went wrong. Please try again.";
+        formOutput.classList.remove("success");
+        formOutput.classList.add("error");
+    }
+    })
+    .catch(() => {
+        formOutput.textContent = "Something went wrong. Please try again.";
+        formOutput.classList.remove("success");
+        formOutput.classList.add("error");
+    });
 });
 
 /* Scroll Animation */
